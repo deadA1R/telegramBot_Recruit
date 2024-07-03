@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, String, Integer
+from sqlalchemy import BigInteger, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 import os
@@ -31,8 +31,9 @@ class User(Base):
     address: Mapped[str] = mapped_column(String(40), nullable=True)
     number: Mapped[str] = mapped_column(String(16), nullable=True)
     previous_work_status: Mapped[str] = mapped_column(String(20), nullable=True)
-    previous_work_discription: Mapped[str] = mapped_column(String(200), nullable=True)
-    comment: Mapped[str] = mapped_column(String(200), nullable=True)
+    previous_work_discription: Mapped[str] = mapped_column(String(120), nullable=True)
+    comment: Mapped[str] = mapped_column(String(120), nullable=True)
+    parent_id: Mapped[int] = mapped_column(ForeignKey('recruits.id'))
 
 async def async_main():
     async with engine.begin() as conn:

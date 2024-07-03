@@ -5,22 +5,10 @@ from aiogram.fsm.context import FSMContext
 from APP.classes import UserAdd
 import APP.keyboards as kb
 import APP.database.requests as rq
+from APP.messages import MESSAGES
 
 router_usr = Router()
 
-
-MESSAGES = {
-    "thanks": "Спасибо, претендент добавлен",
-    "add_person": "Добавить человека🟢",
-    "set_status": "Выберите статус",
-    "enter_age": "Введите возраст",
-    "enter_address": "Введите адрес",
-    "enter_phone_number": "Введите номер телефона",
-    "add_comment": "Добавьте дополнительный комментарий",
-    "main_menu": "Выберите действие",
-    "no_experience": "Опыта работы нет",
-    "not_suitable": "Не подходит",
-}
 
 @router_usr.message(F.text == MESSAGES["add_person"])
 async def add_user(message: Message, state: FSMContext):
@@ -38,6 +26,7 @@ async def add_status(message: Message, state: FSMContext):
     await state.update_data(status=message.text)
     if message.text == MESSAGES["not_suitable"]:
         data = await state.get_data()
+        data["parent_id"] = await rq.get_recruit_id_by_tg_id(message.from_user.id)
         await rq.set_user_not_releable(data)
         await message.answer(MESSAGES["thanks"], reply_markup=kb.main)
         await state.clear()
@@ -87,6 +76,7 @@ async def add_comment(message: Message, state: FSMContext):
     data = await state.get_data()
     if not data.get("previous_work_discription"):
         data["previous_work_discription"] = "-"
+    data["parent_id"] = await rq.get_recruit_id_by_tg_id(message.from_user.id)
     await message.answer(MESSAGES["thanks"], reply_markup=kb.main)
     await rq.set_user(data)
     await state.clear()
